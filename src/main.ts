@@ -7,10 +7,11 @@ import { isProxy, parse } from './lib';
 
 const parsed = parse();
 
-const config = isProxy(parsed) ? { proxy: parsed } : parsed;
+const config = isProxy(parsed) ? { proxy: parsed } : parsed.config;
 
 for (const name of Object.keys(config)) {
   const { hostname, target, key, cert, source } = config[name]!;
+  const bindAddress = parsed.bindAddress || undefined;
 
   proxy
     .createServer({
@@ -28,7 +29,7 @@ for (const name of Object.keys(config)) {
     .on('error', (e: any) => {
       console.error(red('Request failed to ' + name + ': ' + bold(e.code)));
     })
-    .listen(source);
+    .listen(source, bindAddress);
 
   console.log(
     green(

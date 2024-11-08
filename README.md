@@ -33,6 +33,16 @@ Start your web server on the target port (`9000` in the example) and navigate to
 
 Using a dynamic DNS provider such as [noip](http://www.noip.com/personal/) or [DynDNS](http://dyn.com/dns/) or a static IP (if you have one) you can open a port in your firewall to allow external sites to call into your web server. This is great for developing applications using [OAuth](http://oauth.net/) without having to deploy externally.
 
+## Specific bind address
+
+To pass a specific bind address to listen to, run:
+
+```sh
+local-ssl-proxy --source 9001 --target 9000 --bindAddress '0.0.0.0'
+```
+
+This is often necessary when running local-ssl-proxy under WSL, if you are then using a browser on Windows as opposed to one installed directly to WSL.
+
 ## Advanced
 
 You can also pass a configuration file, this helps share setups with team members. These can contain multiple proxies that `local-ssl-proxy` will open concurrently.

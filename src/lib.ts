@@ -24,9 +24,10 @@ const program = createCommand(name)
     resolve(__dirname, '..', 'resources', 'localhost.pem')
   )
   .option('-k, --key <key>', 'path to SSL key', exists, resolve(__dirname, '..', 'resources', 'localhost-key.pem'))
-  .option('-o, --config <config>', 'path to configuration file', (path) => require(absolutePath(path)));
+  .option('-o, --config <config>', 'path to configuration file', (path) => require(absolutePath(path)))
+  .option('-b, --bindAddress <bindAddress>', 'bind address for the server');
 
-type Proxy = {
+export type Proxy = {
   hostname: string;
   source: number;
   target: number;
@@ -34,10 +35,11 @@ type Proxy = {
   key: string;
 };
 
-type Config = { config: Record<string, Proxy> };
-type ParsedArguments = Proxy | Config;
+export type Config = { config: Record<string, Proxy> };
+type BindAddress = { bindAddress: string };
+export type ParsedArguments = (Proxy | Config) & BindAddress;
 
-function isConfig(args: unknown): args is Config {
+export function isConfig(args: unknown): args is Config {
   return Boolean(args && typeof args === 'object' && 'config' in args);
 }
 
@@ -58,9 +60,9 @@ export function isProxy(input: unknown): input is Proxy {
   );
 }
 
-export function parse(args?: string[]): Proxy | Record<string, Proxy> {
+export function parse(args?: string[]): ParsedArguments {
   const proxy: ParsedArguments =
     args === undefined ? program.parse().opts() : program.parse(args, { from: 'user' }).opts();
 
-  return isConfig(proxy) ? proxy.config : proxy;
+  return isConfig(proxy) ? {config: proxy.config, bindAddress: proxy.bindAddress} : {...proxy, bindAddress: proxy.bindAddress};
 }
